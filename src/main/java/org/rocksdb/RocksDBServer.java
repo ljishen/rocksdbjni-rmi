@@ -23,7 +23,7 @@ public class RocksDBServer {
             }
 
             // Bind the remote object's stub in the registry
-            Registry registry = LocateRegistry.getRegistry(port);
+            Registry registry = LocateRegistry.createRegistry(port);
             registry.rebind("RocksDB", stub);
 
             LOGGER.info("RocksDB RMI Server is ready");

@@ -12,10 +12,8 @@ public class RocksDBServer {
     private static final Logger LOGGER = LoggerFactory.getLogger(RocksDBServer.class);
 
     public static void main(String[] args) {
-        RocksDBImpl rocksDbImpl = new RocksDBImpl();
-
         try {
-            IRocksDB stub = (IRocksDB) UnicastRemoteObject.exportObject(rocksDbImpl, 0);
+            IRocksDB stub = (IRocksDB) UnicastRemoteObject.exportObject(new RocksDBImpl(), 0);
 
             int port = Registry.REGISTRY_PORT;
             if (args.length == 1) {
@@ -26,7 +24,7 @@ public class RocksDBServer {
             Registry registry = LocateRegistry.createRegistry(port);
             registry.rebind("RocksDB", stub);
 
-            LOGGER.info("RocksDB RMI Server is ready");
+            LOGGER.info("RocksDB RMI Server is ready on port " + port);
         } catch (RemoteException e) {
             LOGGER.error("RocksDB RMI Server error: " + e.getMessage(), e);
         }

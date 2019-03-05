@@ -1,50 +1,177 @@
 package org.rocksdb;
 
-import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.rmi.RemoteException;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class RocksDBImpl implements IRocksDB {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RocksDBImpl.class);
+
+    private DBOptions dbOptions;
+
     private RocksDB rocksDb;
 
+    private ColumnFamilyOptions cfOptions;
+
+    private Map<String, ColumnFamilyHandle> columnFamilies = new ConcurrentHashMap<>();
+
+
+    private DBOptions getDefaultDBOptions() {
+        final int rocksThreads = Runtime.getRuntime().availableProcessors() * 2;
+
+        return new DBOptions()
+                .setCreateIfMissing(true)
+                .setCreateMissingColumnFamilies(true)
+                .setIncreaseParallelism(rocksThreads)
+                .setMaxBackgroundCompactions(rocksThreads)
+                .setInfoLogLevel(InfoLogLevel.INFO_LEVEL);
+    }
+
     @Override
-    public RocksDB open(final DBOptions options, final String path,
-                        final List<ColumnFamilyDescriptor> columnFamilyDescriptors,
-                        final List<ColumnFamilyHandle> columnFamilyHandles) throws RocksDBException {
-        rocksDb = RocksDB.open(options, path, columnFamilyDescriptors, columnFamilyHandles);
-        return rocksDb;
+    public void open(String rocksDbDir, String optionsFile) throws RemoteException {
+        cfOptions = new ColumnFamilyOptions().optimizeLevelStyleCompaction();
+
+        List<ColumnFamilyDescriptor> cfDescs;
+        if (optionsFile.isEmpty()) {
+            dbOptions = getDefaultDBOptions();
+            cfDescs = Collections.singletonList(new ColumnFamilyDescriptor(RocksDB.DEFAULT_COLUMN_FAMILY, cfOptions));
+        } else {
+            dbOptions = new DBOptions();
+            cfDescs = new ArrayList<>();
+
+            try {
+                // We don't wnat to hide incompatible options
+                OptionsUtil.loadOptionsFromFile(
+                        optionsFile,
+                        Env.getDefault(),
+                        dbOptions,
+                        cfDescs);
+            } catch (RocksDBException e) {
+                LOGGER.error(e.getMessage(), e);
+                throw new RemoteException(e.getMessage(), e);
+            }
+
+            LOGGER.info(
+                    "Load column families: "
+                            + cfDescs
+                            .stream()
+                            .map(cf -> new String(cf.getName(), UTF_8))
+                            .collect(Collectors.toList())
+                            .toString()
+                            + " from options file: "
+                            + optionsFile);
+        }
+
+        final List<ColumnFamilyHandle> cfHandles = new ArrayList<>();
+        try {
+            rocksDb = RocksDB.open(dbOptions, rocksDbDir, cfDescs, cfHandles);
+        } catch (RocksDBException e) {
+            LOGGER.error(e.getMessage(), e);
+            throw new RemoteException(e.getMessage(), e);
+        }
+
+        for (int i = 0; i < cfDescs.size(); i++) {
+            columnFamilies.put(new String(cfDescs.get(i).getName(), UTF_8), cfHandles.get(i));
+        }
     }
 
     @Override
     public void close() {
+        for (final ColumnFamilyHandle cfHandle : columnFamilies.values()) {
+            cfHandle.close();
+        }
+        columnFamilies.clear();
+
         rocksDb.close();
+        rocksDb = null;
+
+        dbOptions.close();
+        dbOptions = null;
+
+        cfOptions.close();
     }
 
     @Override
-    public byte[] get(final ColumnFamilyHandle columnFamilyHandle,
-                      final byte[] key) throws RocksDBException {
-        return rocksDb.get(columnFamilyHandle, key);
+    public byte[] get(final String table, final String key) throws RemoteException {
+        try {
+            return rocksDb.get(getColumnFamilyHandle(table), key.getBytes(UTF_8));
+        } catch (RocksDBException e) {
+            LOGGER.error(e.getMessage(), e);
+            throw new RemoteException(e.getMessage(), e);
+        }
+    }
+
+    private ColumnFamilyHandle getColumnFamilyHandle(String table) throws RocksDBException {
+        ColumnFamilyHandle cfHandle = columnFamilies.get(table);
+
+        if (cfHandle == null) {
+            cfHandle = createColumnFamily(table);
+        }
+        return cfHandle;
     }
 
     @Override
-    public RocksIterator newIterator(
-            final ColumnFamilyHandle columnFamilyHandle) {
-        return rocksDb.newIterator(columnFamilyHandle);
+    public List<byte[]> batchGet(final String table,
+                                 final String startkey,
+                                 final int recordcount) throws RemoteException {
+        List<byte[]> values = new ArrayList<>();
+        try (final RocksIterator iterator = rocksDb.newIterator(getColumnFamilyHandle(table))) {
+            int iterations = 0;
+            for (iterator.seek(startkey.getBytes(UTF_8));
+                 iterator.isValid() && iterations < recordcount;
+                 iterator.next()) {
+                values.add(iterator.value());
+                iterations++;
+            }
+            return values;
+        } catch (RocksDBException e) {
+            LOGGER.error(e.getMessage(), e);
+            throw new RemoteException(e.getMessage(), e);
+        }
     }
 
     @Override
-    public void put(final ColumnFamilyHandle columnFamilyHandle,
-                    final byte[] key, final byte[] value) throws RocksDBException {
-        rocksDb.put(columnFamilyHandle, key, value);
+    public void put(String table, String key, byte[] value) throws RemoteException {
+        try {
+            rocksDb.put(getColumnFamilyHandle(table), key.getBytes(UTF_8), value);
+        } catch (RocksDBException e) {
+            LOGGER.error(e.getMessage(), e);
+            throw new RemoteException(e.getMessage(), e);
+        }
     }
 
     @Override
-    public void delete(final ColumnFamilyHandle columnFamilyHandle,
-                       final byte[] key) throws RocksDBException {
-        rocksDb.delete(columnFamilyHandle, key);
+    public void delete(String table, String key) throws RemoteException {
+        try {
+            rocksDb.delete(getColumnFamilyHandle(table), key.getBytes(UTF_8));
+        } catch (RocksDBException e) {
+            LOGGER.error(e.getMessage(), e);
+            throw new RemoteException(e.getMessage(), e);
+        }
     }
 
     @Override
-    public ColumnFamilyHandle createColumnFamily(
-            final ColumnFamilyDescriptor columnFamilyDescriptor) throws RocksDBException {
-        return rocksDb.createColumnFamily(columnFamilyDescriptor);
+    public Set<String> getColumnFamilyNames() {
+        return new HashSet<>(columnFamilies.keySet());
+    }
+
+    private ColumnFamilyHandle createColumnFamily(final String name) throws RocksDBException {
+        synchronized (columnFamilies) {
+            ColumnFamilyHandle cfHandle = columnFamilies.get(name);
+            if (cfHandle != null) {
+                return cfHandle;
+            }
+
+            cfHandle =
+                    rocksDb.createColumnFamily(new ColumnFamilyDescriptor(name.getBytes(UTF_8), cfOptions));
+            columnFamilies.put(name, cfHandle);
+            return cfHandle;
+        }
     }
 }

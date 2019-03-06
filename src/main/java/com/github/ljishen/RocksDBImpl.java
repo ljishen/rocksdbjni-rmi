@@ -1,5 +1,6 @@
-package org.rocksdb;
+package com.github.ljishen;
 
+import org.rocksdb.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,4 +1,4 @@
-package org.rocksdb;
+package com.github.ljishen;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;

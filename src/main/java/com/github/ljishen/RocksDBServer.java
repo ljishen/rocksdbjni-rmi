@@ -16,11 +16,17 @@ public class RocksDBServer {
             IRocksDB stub = (IRocksDB) UnicastRemoteObject.exportObject(new RocksDBImpl(), 0);
 
             int registryPort = Registry.REGISTRY_PORT;
-            if (args.length == 1) {
-                registryPort = Integer.parseInt(args[0]);
+            if (args.length >= 1) {
+                registryPort = Integer.parseInt(args[0].trim());
+            }
+
+            String registryHost = "localhost";
+            if (args.length >= 2) {
+                registryHost = args[1].trim();
             }
 
             // Bind the remote object's stub in the registry
+            System.setProperty("java.rmi.server.hostname", registryHost);
             Registry registry = LocateRegistry.createRegistry(registryPort);
             registry.rebind("RocksDB-" + registryPort, stub);
 

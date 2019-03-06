@@ -15,16 +15,16 @@ public class RocksDBServer {
         try {
             IRocksDB stub = (IRocksDB) UnicastRemoteObject.exportObject(new RocksDBImpl(), 0);
 
-            int port = Registry.REGISTRY_PORT;
+            int registryPort = Registry.REGISTRY_PORT;
             if (args.length == 1) {
-                port = Integer.parseInt(args[0]);
+                registryPort = Integer.parseInt(args[0]);
             }
 
             // Bind the remote object's stub in the registry
-            Registry registry = LocateRegistry.createRegistry(port);
-            registry.rebind("RocksDB", stub);
+            Registry registry = LocateRegistry.createRegistry(registryPort);
+            registry.rebind("RocksDB-" + registryPort, stub);
 
-            LOGGER.info("RocksDB RMI Server is ready on port " + port);
+            LOGGER.info("RocksDB RMI Server is ready on port " + registryPort);
         } catch (RemoteException e) {
             LOGGER.error("RocksDB RMI Server error: " + e.getMessage(), e);
         }

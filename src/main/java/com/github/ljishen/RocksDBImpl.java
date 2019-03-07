@@ -4,6 +4,8 @@ import org.rocksdb.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.rmi.RemoteException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -36,10 +38,27 @@ public class RocksDBImpl implements IRocksDB {
 
     @Override
     public void open(String rocksDbDir, String optionsFile) throws RemoteException {
+        Path rocksDbDirPath = Paths.get(rocksDbDir);
+        LOGGER.info("RocksDB data dir: " + rocksDbDirPath);
+
+        // a static method that loads the RocksDB C++ library.
+        RocksDB.loadLibrary();
+
+        String optionsFilePath = optionsFile;
+        if (optionsFilePath == null) {
+            try {
+                optionsFilePath = OptionsUtil.getLatestOptionsFileName(
+                        rocksDbDirPath.toAbsolutePath().toString(), Env.getDefault());
+            } catch (RocksDBException e) {
+                LOGGER.error(e.getMessage(), e);
+                throw new RemoteException(e.getMessage(), e);
+            }
+        }
+
         cfOptions = new ColumnFamilyOptions().optimizeLevelStyleCompaction();
 
         List<ColumnFamilyDescriptor> cfDescs;
-        if (optionsFile.isEmpty()) {
+        if (optionsFilePath.isEmpty()) {
             dbOptions = getDefaultDBOptions();
             cfDescs = Collections.singletonList(new ColumnFamilyDescriptor(RocksDB.DEFAULT_COLUMN_FAMILY, cfOptions));
         } else {
@@ -49,7 +68,7 @@ public class RocksDBImpl implements IRocksDB {
             try {
                 // We don't wnat to hide incompatible options
                 OptionsUtil.loadOptionsFromFile(
-                        optionsFile,
+                        rocksDbDirPath.resolve(optionsFilePath).toAbsolutePath().toString(),
                         Env.getDefault(),
                         dbOptions,
                         cfDescs);
@@ -66,7 +85,7 @@ public class RocksDBImpl implements IRocksDB {
                             .collect(Collectors.toList())
                             .toString()
                             + " from options file: "
-                            + optionsFile);
+                            + optionsFilePath);
         }
 
         final List<ColumnFamilyHandle> cfHandles = new ArrayList<>();

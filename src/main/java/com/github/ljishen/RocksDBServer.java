@@ -13,8 +13,6 @@ public class RocksDBServer {
 
     public static void main(String[] args) {
         try {
-            IRocksDB stub = (IRocksDB) UnicastRemoteObject.exportObject(new RocksDBImpl(), 0);
-
             int registryPort = Registry.REGISTRY_PORT;
             if (args.length >= 1) {
                 registryPort = Integer.parseInt(args[0].trim());
@@ -25,12 +23,16 @@ public class RocksDBServer {
                 registryHost = args[1].trim();
             }
 
-            // Bind the remote object's stub in the registry
             System.setProperty("java.rmi.server.hostname", registryHost);
+
+            IRocksDB stub = (IRocksDB) UnicastRemoteObject.exportObject(new RocksDBImpl(), 0);
+
+            // Bind the remote object's stub in the registry
             Registry registry = LocateRegistry.createRegistry(registryPort);
             registry.rebind("RocksDB-" + registryPort, stub);
 
-            LOGGER.info("RocksDB RMI Server is ready on port " + registryPort);
+            LOGGER.info("RocksDB RMI Server is ready running on " +
+                    registryHost + ":" + registryPort);
         } catch (RemoteException e) {
             LOGGER.error("RocksDB RMI Server error: " + e.getMessage(), e);
         }

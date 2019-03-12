@@ -248,6 +248,18 @@
                 </executions>
             </plugin>
 
+            <!-- Do not create the default jar that does not include all the dependencies. -->
+            <plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>default-jar</id>
+                        <phase>none</phase>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- We now package the project into a single jar with all dependencies. -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>

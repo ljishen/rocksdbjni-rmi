@@ -46,7 +46,7 @@
             <activation>
                 <activeByDefault>true</activeByDefault>
                 <os>
-                    <family>unit</family>
+                    <family>unix</family>
                     <arch>amd64</arch>
                 </os>
             </activation>
@@ -59,7 +59,7 @@
             <id>rocksdbjni-aarch64</id>
             <activation>
                 <os>
-                    <family>unit</family>
+                    <family>unix</family>
                     <arch>aarch64</arch>
                 </os>
             </activation>

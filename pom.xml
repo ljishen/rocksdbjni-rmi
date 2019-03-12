@@ -6,7 +6,7 @@
 
     <groupId>com.github.ljishen</groupId>
     <artifactId>rocksdbjni-rmi</artifactId>
-    <version>0.0.0.2</version>
+    <version>0.0.0.3</version>
 
     <name>rocksdbjni-rmi</name>
     <description>A Java RMI server for the RocksDB object</description>
@@ -40,11 +40,41 @@
         <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
 
+    <profiles>
+        <profile>
+            <id>rocksdbjni-linux64</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+                <os>
+                    <family>unit</family>
+                    <arch>amd64</arch>
+                </os>
+            </activation>
+            <properties>
+                <rocksdbjni.classifier>linux64</rocksdbjni.classifier>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>rocksdbjni-aarch64</id>
+            <activation>
+                <os>
+                    <family>unit</family>
+                    <arch>aarch64</arch>
+                </os>
+            </activation>
+            <properties>
+                <rocksdbjni.classifier>aarch64</rocksdbjni.classifier>
+            </properties>
+        </profile>
+    </profiles>
+
     <dependencies>
         <dependency>
             <groupId>org.rocksdb</groupId>
             <artifactId>rocksdbjni</artifactId>
             <version>5.14.3</version>
+            <classifier>${rocksdbjni.classifier}</classifier>
         </dependency>
         <dependency>
             <groupId>net.jcip</groupId>
@@ -126,6 +156,28 @@
 
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-install-plugin</artifactId>
+                <version>2.5.2</version>
+                <executions>
+                    <execution>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>install-file</goal>
+                        </goals>
+                        <configuration>
+                            <file>lib/rocksdbjni-5.14.3-aarch64.jar</file>
+                            <groupId>org.rocksdb</groupId>
+                            <artifactId>rocksdbjni</artifactId>
+                            <version>5.14.3</version>
+                            <packaging>jar</packaging>
+                            <classifier>aarch64</classifier>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
             </plugin>
             <plugin>
@@ -180,6 +232,22 @@
                 </executions>
             </plugin>
 
+            <!-- display active profile in compile phase -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-help-plugin</artifactId>
+                <version>3.1.1</version>
+                <executions>
+                    <execution>
+                        <id>show-profiles</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>active-profiles</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
@@ -191,6 +259,7 @@
                             <goal>single</goal>
                         </goals>
                         <configuration>
+                            <finalName>${project.artifactId}-${project.version}-${rocksdbjni.classifier}</finalName>
                             <archive>
                                 <manifest>
                                     <mainClass>com.github.ljishen.RocksDBServer</mainClass>

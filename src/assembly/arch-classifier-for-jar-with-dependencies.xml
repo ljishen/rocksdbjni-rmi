@@ -1,0 +1,22 @@
+<!--
+The content of file is based on pre-defined descriptor "jar-with-dependencies".
+See https://maven.apache.org/plugins/maven-assembly-plugin/descriptor-refs.html#jar-with-dependencies
+-->
+<assembly xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xmlns="http://maven.apache.org/ASSEMBLY/2.0.0"
+          xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.0.0 http://maven.apache.org/xsd/assembly-2.0.0.xsd">
+    <!-- TODO: a jarjar format would be better -->
+    <id>${rocksdbjni.classifier}</id>
+    <formats>
+        <format>jar</format>
+    </formats>
+    <includeBaseDirectory>false</includeBaseDirectory>
+    <dependencySets>
+        <dependencySet>
+            <outputDirectory>/</outputDirectory>
+            <useProjectArtifact>true</useProjectArtifact>
+            <unpack>true</unpack>
+            <scope>runtime</scope>
+        </dependencySet>
+    </dependencySets>
+</assembly>

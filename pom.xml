@@ -259,15 +259,14 @@
                             <goal>single</goal>
                         </goals>
                         <configuration>
-                            <finalName>${project.artifactId}-${project.version}-${rocksdbjni.classifier}</finalName>
                             <archive>
                                 <manifest>
                                     <mainClass>com.github.ljishen.RocksDBServer</mainClass>
                                 </manifest>
                             </archive>
-                            <descriptorRefs>
-                                <descriptorRef>jar-with-dependencies</descriptorRef>
-                            </descriptorRefs>
+                            <descriptors>
+                                <descriptor>src/assembly/arch-classifier-for-jar-with-dependencies.xml</descriptor>
+                            </descriptors>
                         </configuration>
                     </execution>
                 </executions>

@@ -3,6 +3,7 @@ package com.github.ljishen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -25,16 +26,28 @@ public class RocksDBServer {
 
             System.setProperty("java.rmi.server.hostname", registryHost);
 
-            IRocksDB stub = (IRocksDB) UnicastRemoteObject.exportObject(new RocksDBImpl(), 0);
+            IRocksDB rocksDB = new RocksDBImpl();
+            IRocksDB stub = (IRocksDB) UnicastRemoteObject.exportObject(rocksDB, 0);
 
             // Bind the remote object's stub in the registry
             Registry registry = LocateRegistry.createRegistry(registryPort);
-            registry.rebind("RocksDB-" + registryPort, stub);
+            String name = "RocksDB-" + registryPort;
+            registry.rebind(name, stub);
 
-            LOGGER.info("RocksDB RMI Server is ready running on " +
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                try {
+                    registry.unbind(name);
+                    UnicastRemoteObject.unexportObject(rocksDB, true);
+                    LOGGER.info("RocksDB RMI server has been successfully shut down.");
+                } catch (RemoteException | NotBoundException e) {
+                    LOGGER.error("Fail to shutdown RocksDB RMI server: " + e.getMessage(), e);
+                }
+            }));
+
+            LOGGER.info("RocksDB RMI server is running on " +
                     registryHost + ":" + registryPort);
         } catch (RemoteException e) {
-            LOGGER.error("RocksDB RMI Server error: " + e.getMessage(), e);
+            LOGGER.error("Fail to start RocksDB RMI server: " + e.getMessage(), e);
         }
     }
 }

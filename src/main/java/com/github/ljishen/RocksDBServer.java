@@ -14,6 +14,9 @@ public class RocksDBServer {
 
     public static void main(String[] args) {
         try {
+            Thread.setDefaultUncaughtExceptionHandler(
+                    (t, e) -> LOGGER.error("Fail to run RocksDB RMI server: " + e.getMessage(), e));
+
             int registryPort = Registry.REGISTRY_PORT;
             if (args.length >= 1) {
                 registryPort = Integer.parseInt(args[0].trim());
@@ -34,6 +37,7 @@ public class RocksDBServer {
             String name = "RocksDB-" + registryPort;
             registry.rebind(name, stub);
 
+            // Register a shutdown hook to clean up resources before exit.
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 try {
                     registry.unbind(name);

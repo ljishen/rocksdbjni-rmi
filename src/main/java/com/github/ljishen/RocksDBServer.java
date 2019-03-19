@@ -12,6 +12,8 @@ import java.rmi.server.UnicastRemoteObject;
 public class RocksDBServer {
     private static final Logger LOGGER = LoggerFactory.getLogger(RocksDBServer.class);
 
+    private static IRocksDB rocksDB;
+
     public static void main(String[] args) {
         try {
             Thread.setDefaultUncaughtExceptionHandler(
@@ -27,9 +29,15 @@ public class RocksDBServer {
                 registryHost = args[1].trim();
             }
 
+            LOGGER.info("Starting RocksDB RMI server on " + registryHost + ":" + registryPort);
+
             System.setProperty("java.rmi.server.hostname", registryHost);
 
-            IRocksDB rocksDB = new RocksDBImpl();
+            // Store the reference of the RMI server object in a static field to prevent it
+            // from being garbage collected and then unexported.
+            // https://stackoverflow.com/questions/25872985/rmi-server-shuts-down-on-its-own
+            rocksDB = new RocksDBImpl();
+
             IRocksDB stub = (IRocksDB) UnicastRemoteObject.exportObject(rocksDB, 0);
 
             // Bind the remote object's stub in the registry
@@ -48,8 +56,7 @@ public class RocksDBServer {
                 }
             }));
 
-            LOGGER.info("RocksDB RMI server is running on " +
-                    registryHost + ":" + registryPort);
+            LOGGER.info("Server is running.");
         } catch (RemoteException e) {
             LOGGER.error("Fail to start RocksDB RMI server: " + e.getMessage(), e);
         }

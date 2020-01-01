@@ -38,7 +38,7 @@ public class RocksDBImpl implements IRocksDB {
 
     @Override
     public void open(String rocksDbDir, String optionsFile) throws RemoteException {
-        Path rocksDbDirPath = Paths.get(rocksDbDir);
+        Path rocksDbDirPath = Paths.get(rocksDbDir).toAbsolutePath();
         LOGGER.info("RocksDB data dir: " + rocksDbDirPath);
 
         // a static method that loads the RocksDB C++ library.
@@ -48,7 +48,7 @@ public class RocksDBImpl implements IRocksDB {
         if (optionsFilePath == null) {
             try {
                 optionsFilePath = OptionsUtil.getLatestOptionsFileName(
-                        rocksDbDirPath.toAbsolutePath().toString(), Env.getDefault());
+                        rocksDbDirPath.toString(), Env.getDefault());
             } catch (RocksDBException e) {
                 LOGGER.error(e.getMessage(), e);
                 throw new RemoteException(e.getMessage(), e);
@@ -68,7 +68,7 @@ public class RocksDBImpl implements IRocksDB {
             try {
                 // We don't wnat to hide incompatible options
                 OptionsUtil.loadOptionsFromFile(
-                        rocksDbDirPath.resolve(optionsFilePath).toAbsolutePath().toString(),
+                        rocksDbDirPath.resolve(optionsFilePath).toString(),
                         Env.getDefault(),
                         dbOptions,
                         cfDescs);
@@ -90,7 +90,7 @@ public class RocksDBImpl implements IRocksDB {
 
         final List<ColumnFamilyHandle> cfHandles = new ArrayList<>();
         try {
-            rocksDb = RocksDB.open(dbOptions, rocksDbDir, cfDescs, cfHandles);
+            rocksDb = RocksDB.open(dbOptions, rocksDbDirPath.toString(), cfDescs, cfHandles);
         } catch (RocksDBException e) {
             LOGGER.error(e.getMessage(), e);
             throw new RemoteException(e.getMessage(), e);
@@ -102,19 +102,27 @@ public class RocksDBImpl implements IRocksDB {
     }
 
     @Override
-    public void close() {
-        for (final ColumnFamilyHandle cfHandle : columnFamilies.values()) {
-            cfHandle.close();
+    public void close() throws RemoteException {
+        try {
+            for (final ColumnFamilyHandle cfHandle : columnFamilies.values()) {
+                cfHandle.getDescriptor().getOptions().close();
+                cfHandle.close();
+            }
+        } catch (RocksDBException e) {
+            LOGGER.error(e.getMessage(), e);
+            throw new RemoteException(e.getMessage(), e);
         }
         columnFamilies.clear();
 
-        rocksDb.close();
-        rocksDb = null;
+        if (rocksDb != null) {
+            rocksDb.close();
+            rocksDb = null;
+        }
 
-        dbOptions.close();
-        dbOptions = null;
-
-        cfOptions.close();
+        if (dbOptions != null) {
+            dbOptions.close();
+            dbOptions = null;
+        }
     }
 
     @Override
@@ -137,7 +145,7 @@ public class RocksDBImpl implements IRocksDB {
     }
 
     @Override
-    public List<byte[]> batchGet(final String table,
+    public List<byte[]> bulkGet(final String table,
                                  final String startkey,
                                  final int recordcount) throws RemoteException {
         List<byte[]> values = new ArrayList<>();
@@ -182,7 +190,7 @@ public class RocksDBImpl implements IRocksDB {
     }
 
     private ColumnFamilyHandle createColumnFamily(final String name) throws RocksDBException {
-        synchronized (columnFamilies) {
+        synchronized (name.intern()) {
             ColumnFamilyHandle cfHandle = columnFamilies.get(name);
             if (cfHandle != null) {
                 return cfHandle;

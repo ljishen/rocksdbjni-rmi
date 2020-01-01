@@ -1,5 +1,7 @@
 package com.github.ljishen;
 
+import com.google.common.net.InetAddresses;
+import com.google.common.net.InternetDomainName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,19 +16,34 @@ public class RocksDBServer {
 
     private static IRocksDB rocksDB;
 
-    public static void main(String[] args) {
-        try {
-            Thread.setDefaultUncaughtExceptionHandler(
-                    (t, e) -> LOGGER.error("Fail to run RocksDB RMI server: " + e.getMessage(), e));
+    static int getRegistryPort(int port) throws RemoteException {
+        if (port <= 0 || port > 65535) {
+            throw new RemoteException("Invalid port number");
+        }
+        return port;
+    }
 
+    static String getRegistryHost(String host) throws RemoteException {
+        if (!InternetDomainName.isValid(host) &&
+                !InetAddresses.isInetAddress(host)) {
+            throw new RemoteException("Invalid hostname");
+        }
+        return host;
+    }
+
+    public static void main(String[] args) {
+        Thread.setDefaultUncaughtExceptionHandler(
+                (t, e) -> LOGGER.error("Error on running RocksDB RMI server: " + e.getMessage(), e));
+
+        try {
             int registryPort = Registry.REGISTRY_PORT;
             if (args.length >= 1) {
-                registryPort = Integer.parseInt(args[0].trim());
+                registryPort = getRegistryPort(Integer.parseInt(args[0].trim()));
             }
 
             String registryHost = "localhost";
             if (args.length >= 2) {
-                registryHost = args[1].trim();
+                registryHost = getRegistryHost(args[1].trim());
             }
 
             LOGGER.info("Starting RocksDB RMI server on " + registryHost + ":" + registryPort);
@@ -50,6 +67,7 @@ public class RocksDBServer {
                 try {
                     registry.unbind(name);
                     UnicastRemoteObject.unexportObject(rocksDB, true);
+                    rocksDB.close();
                     LOGGER.info("RocksDB RMI server has been successfully shut down.");
                 } catch (RemoteException | NotBoundException e) {
                     LOGGER.error("Fail to shutdown RocksDB RMI server: " + e.getMessage(), e);

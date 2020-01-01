@@ -15,7 +15,7 @@ public interface IRocksDB extends Remote {
     byte[] get(final String table, final String key)
             throws RemoteException;
 
-    List<byte[]> batchGet(final String table,
+    List<byte[]> bulkGet(final String table,
                           final String startkey,
                           final int recordcount) throws RemoteException;
 

@@ -5,7 +5,7 @@
 
     <groupId>com.github.ljishen</groupId>
     <artifactId>rocksdbjni-rmi</artifactId>
-    <version>0.0.0.4-SNAPSHOT</version>
+    <version>0.0.0.4</version>
 
     <name>rocksdbjni-rmi</name>
     <description>A Java RMI server for RocksDB</description>
@@ -31,7 +31,7 @@
         <connection>scm:git:git://github.com/ljishen/rocksdbjni-rmi.git</connection>
         <developerConnection>scm:git:ssh://ljishen@github.com/ljishen/rocksdbjni-rmi.git</developerConnection>
         <url>http://github.com/ljishen/rocksdbjni-rmi/tree/master</url>
-        <tag>HEAD</tag>
+        <tag>rocksdbjni-rmi-0.0.0.4</tag>
     </scm>
 
     <distributionManagement>

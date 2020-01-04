@@ -78,7 +78,7 @@
             </properties>
         </profile>
 
-        <!-- Group the javadoc, source and gpg plugin
+        <!-- group the javadoc, source and gpg plugin
            This profile is then in turn used when a deployment is performed
            by activating the profile.
            See https://central.sonatype.org/pages/apache-maven.html#using-a-profile
@@ -165,7 +165,7 @@
         <dependency>
             <groupId>org.rocksdb</groupId>
             <artifactId>rocksdbjni</artifactId>
-            <version>5.14.3</version>
+            <version>6.5.2</version>
             <classifier>${rocksdbjni.classifier}</classifier>
         </dependency>
         <dependency>
@@ -236,11 +236,6 @@
                     <artifactId>maven-site-plugin</artifactId>
                     <version>3.8.2</version>
                 </plugin>
-
-                <plugin>
-                    <artifactId>maven-project-info-reports-plugin</artifactId>
-                    <version>3.0.0</version>
-                </plugin>
             </plugins>
         </pluginManagement>
 
@@ -255,10 +250,10 @@
                             <goal>install-file</goal>
                         </goals>
                         <configuration>
-                            <file>lib/rocksdbjni-5.14.3-aarch64.jar</file>
+                            <file>lib/rocksdbjni-6.5.2-aarch64.jar</file>
                             <groupId>org.rocksdb</groupId>
                             <artifactId>rocksdbjni</artifactId>
-                            <version>5.14.3</version>
+                            <version>6.5.2</version>
                             <packaging>jar</packaging>
                             <classifier>aarch64</classifier>
                         </configuration>

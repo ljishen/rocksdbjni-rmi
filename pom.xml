@@ -51,33 +51,6 @@
     </properties>
 
     <profiles>
-        <profile>
-            <id>rocksdbjni-linux64</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-                <os>
-                    <family>unix</family>
-                    <arch>amd64</arch>
-                </os>
-            </activation>
-            <properties>
-                <rocksdbjni.classifier>linux64</rocksdbjni.classifier>
-            </properties>
-        </profile>
-
-        <profile>
-            <id>rocksdbjni-aarch64</id>
-            <activation>
-                <os>
-                    <family>unix</family>
-                    <arch>aarch64</arch>
-                </os>
-            </activation>
-            <properties>
-                <rocksdbjni.classifier>aarch64</rocksdbjni.classifier>
-            </properties>
-        </profile>
-
         <!-- group the javadoc, source and gpg plugin
            This profile is then in turn used when a deployment is performed
            by activating the profile.
@@ -166,7 +139,6 @@
             <groupId>org.rocksdb</groupId>
             <artifactId>rocksdbjni</artifactId>
             <version>6.5.2</version>
-            <classifier>${rocksdbjni.classifier}</classifier>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -240,29 +212,6 @@
         </pluginManagement>
 
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-install-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>clean</phase>
-                        <goals>
-                            <goal>install-file</goal>
-                        </goals>
-                        <configuration>
-                            <file>lib/rocksdbjni-6.5.2-aarch64.jar</file>
-                            <javadoc>lib/rocksdbjni-6.5.2-javadoc.jar</javadoc>
-                            <sources>lib/rocksdbjni-6.5.2-sources.jar</sources>
-                            <groupId>org.rocksdb</groupId>
-                            <artifactId>rocksdbjni</artifactId>
-                            <version>6.5.2</version>
-                            <packaging>jar</packaging>
-                            <classifier>aarch64</classifier>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
             <!-- Display active profile in compile phase -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

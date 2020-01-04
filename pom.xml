@@ -245,12 +245,14 @@
                 <artifactId>maven-install-plugin</artifactId>
                 <executions>
                     <execution>
-                        <phase>initialize</phase>
+                        <phase>clean</phase>
                         <goals>
                             <goal>install-file</goal>
                         </goals>
                         <configuration>
                             <file>lib/rocksdbjni-6.5.2-aarch64.jar</file>
+                            <javadoc>lib/rocksdbjni-6.5.2-javadoc.jar</javadoc>
+                            <sources>lib/rocksdbjni-6.5.2-sources.jar</sources>
                             <groupId>org.rocksdb</groupId>
                             <artifactId>rocksdbjni</artifactId>
                             <version>6.5.2</version>

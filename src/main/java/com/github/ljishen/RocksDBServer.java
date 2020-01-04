@@ -89,6 +89,7 @@ public class RocksDBServer {
             // Register a shutdown hook to clean up resources before exit.
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 try {
+                    LOGGER.info("Removing the registry binding and the exported object from the RMI runtime...");
                     registry.unbind(name);
                     UnicastRemoteObject.unexportObject(rocksDB, true);
                     rocksDB.close();

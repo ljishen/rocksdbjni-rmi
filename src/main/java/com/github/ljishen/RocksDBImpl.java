@@ -127,6 +127,7 @@ public class RocksDBImpl implements IRocksDB {
 
     @Override
     public void close() throws RemoteException {
+        LOGGER.info("Closing the RocksDB instance...");
         try {
             for (final ColumnFamilyHandle cfHandle : columnFamilies.values()) {
                 cfHandle.getDescriptor().getOptions().close();

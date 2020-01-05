@@ -172,12 +172,12 @@ public class RocksDBImpl implements IRocksDB {
     @Override
     public List<byte[]> bulkGet(final String table,
                                 final String startkey,
-                                final int recordcount) throws RemoteException {
+                                final int recordCount) throws RemoteException {
         List<byte[]> values = new ArrayList<>();
         try (final RocksIterator iterator = rocksDb.newIterator(getColumnFamilyHandle(table))) {
             int iterations = 0;
             for (iterator.seek(startkey.getBytes(UTF_8));
-                 iterator.isValid() && iterations < recordcount;
+                 iterator.isValid() && iterations < recordCount;
                  iterator.next()) {
                 values.add(iterator.value());
                 iterations++;

@@ -19,7 +19,7 @@ mvn clean package
 java -jar target/rocksdbjni-rmi-0.0.0.6-SNAPSHOT.jar [port] [hostname]
 ```
 
-The `port` and `hostname` are used to run the RMI registry in the server JVM. The default port is `1099`, and the default hostname is `localhost` if the corresponding parameter is not specified. Note that the `hostname` is the hostname or IP of the local machine, and it should be reachable from the client program who wants to connect to the RMI registry.
+The `port` and `hostname` are used to run the RMI registry in the server JVM. The default port is `1099`, and the default hostname is `localhost` if the corresponding parameter is not specified. Note that the `hostname` is the hostname or IP of the local machine, and it should be reachable from the client program (e.g., YCSB) who wants to connect to the RMI registry.
 
 
 ## Working with YCSB

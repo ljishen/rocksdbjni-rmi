@@ -24,6 +24,7 @@
 
 package com.github.ljishen;
 
+import com.google.common.base.Strings;
 import org.rocksdb.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,20 +63,19 @@ public class RocksDBImpl implements IRocksDB {
 
     @Override
     public void open(String rocksDbDir, String optionsFile) throws RemoteException {
-        Path rocksDbDirPath = Paths.get(rocksDbDir).toAbsolutePath();
+        Path rocksDbDirPath = Paths.get(rocksDbDir.trim()).toAbsolutePath();
         LOGGER.info("RocksDB data dir: " + rocksDbDirPath);
 
         // a static method that loads the RocksDB C++ library.
         RocksDB.loadLibrary();
 
-        String optionsFilePath = optionsFile;
-        if (optionsFilePath == null) {
+        String optionsFilePath = Strings.nullToEmpty(optionsFile).trim();
+        if (optionsFilePath.isEmpty()) {
             try {
                 optionsFilePath = OptionsUtil.getLatestOptionsFileName(
                         rocksDbDirPath.toString(), Env.getDefault());
             } catch (RocksDBException e) {
-                LOGGER.error(e.getMessage(), e);
-                throw new RemoteException(e.getMessage(), e);
+                LOGGER.info("no OPTIONS file found");
             }
         }
 

@@ -53,9 +53,11 @@ public class RocksDBImplTest {
     @Before
     public void setup() throws RemoteException {
         instance = new RocksDBImpl();
+
+        String optionsFileSuffix = System.getProperty("activeProfile", "rocksdb");
         instance.open(tmpFolder.getRoot().getAbsolutePath(),
-                Objects.requireNonNull(
-                        getClass().getClassLoader().getResource("OPTIONS")).getFile());
+                Objects.requireNonNull(getClass().getClassLoader()
+                        .getResource("OPTIONS." + optionsFileSuffix)).getFile());
     }
 
     @After

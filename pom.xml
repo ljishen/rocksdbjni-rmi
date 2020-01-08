@@ -51,6 +51,31 @@
     </properties>
 
     <profiles>
+        <profile>
+            <id>rocksdb</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>org.rocksdb</groupId>
+                    <artifactId>rocksdbjni</artifactId>
+                    <version>6.5.2</version>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <profile>
+            <id>trocksdb</id>
+            <dependencies>
+                <dependency>
+                    <groupId>com.github.ljishen</groupId>
+                    <artifactId>trocksdbjni</artifactId>
+                    <version>6.1.2.0</version>
+                </dependency>
+            </dependencies>
+        </profile>
+
         <!-- group the javadoc, source and gpg plugin
            This profile is then in turn used when a deployment is performed
            by activating the profile.
@@ -135,11 +160,6 @@
     </profiles>
 
     <dependencies>
-        <dependency>
-            <groupId>org.rocksdb</groupId>
-            <artifactId>rocksdbjni</artifactId>
-            <version>6.5.2</version>
-        </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
@@ -272,6 +292,15 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <systemPropertyVariables>
+                        <activeProfile>${project.activeProfiles[0].id}</activeProfile>
+                    </systemPropertyVariables>
+                </configuration>
             </plugin>
 
             <!-- Automate the changes to the Maven POM files, sanity checks,

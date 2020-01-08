@@ -71,7 +71,7 @@
                 <dependency>
                     <groupId>com.github.ljishen</groupId>
                     <artifactId>trocksdbjni</artifactId>
-                    <version>6.1.2.0</version>
+                    <version>6.1.2.1</version>
                 </dependency>
             </dependencies>
         </profile>

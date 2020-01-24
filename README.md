@@ -14,12 +14,14 @@ java -jar rocksdbjni-rmi-0.0.0.6.jar [port] [hostname]
 ```bash
 git clone https://github.com/ljishen/rocksdbjni-rmi.git
 cd rocksdbjni-rmi
-mvn clean package
+mvn clean package [-P {rocksdb,trocksdb}] [-Drocksdb.version=<the version>]
 
 java -jar target/rocksdbjni-rmi-0.0.0.7-SNAPSHOT.jar [port] [hostname]
 ```
 
 The `port` and `hostname` are used to run the RMI registry in the server JVM. The default port is `1099`, and the default hostname is `localhost` if the corresponding parameter is not specified. Note that the `hostname` is the hostname or IP of the local machine, and it should be reachable from the client program (e.g., YCSB) who wants to connect to the RMI registry.
+
+You can choose to build the RMI server for either [RocksDB](https://github.com/facebook/rocksdb) or [TRocksDB](https://github.com/KioxiaAmerica/trocksdb) with the option `-P`. You can also specify the version of RocksDB if the value of `-P` is `rocksdb` (the default value).
 
 
 ## Working with YCSB

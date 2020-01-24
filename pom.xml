@@ -48,6 +48,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <gpg.executable>gpg2</gpg.executable>
+        <rocksdb.version>6.5.3</rocksdb.version>
     </properties>
 
     <profiles>
@@ -60,7 +61,7 @@
                 <dependency>
                     <groupId>org.rocksdb</groupId>
                     <artifactId>rocksdbjni</artifactId>
-                    <version>6.5.2</version>
+                    <version>${rocksdb.version}</version>
                 </dependency>
             </dependencies>
         </profile>

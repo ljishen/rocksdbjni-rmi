@@ -14,7 +14,7 @@ java -jar rocksdbjni-rmi-0.0.0.6.jar [port] [hostname]
 ```bash
 git clone https://github.com/ljishen/rocksdbjni-rmi.git
 cd rocksdbjni-rmi
-mvn clean package [-P {rocksdb,trocksdb}] [-Drocksdb.version=<the version>]
+mvn clean package [-P{rocksdb,trocksdb}] [-Drocksdb.version=<the version>]
 
 java -jar target/rocksdbjni-rmi-0.0.0.7-SNAPSHOT.jar [port] [hostname]
 ```

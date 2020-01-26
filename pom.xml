@@ -48,7 +48,6 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <gpg.executable>gpg2</gpg.executable>
-        <rocksdb.version>6.5.3</rocksdb.version>
     </properties>
 
     <profiles>
@@ -57,6 +56,9 @@
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
+            <properties>
+                <rocksdb.version>6.5.3</rocksdb.version>
+            </properties>
             <dependencies>
                 <dependency>
                     <groupId>org.rocksdb</groupId>
@@ -68,11 +70,14 @@
 
         <profile>
             <id>trocksdb</id>
+            <properties>
+                <rocksdb.version>6.1.2.1</rocksdb.version>
+            </properties>
             <dependencies>
                 <dependency>
                     <groupId>com.github.ljishen</groupId>
                     <artifactId>trocksdbjni</artifactId>
-                    <version>6.1.2.1</version>
+                    <version>${rocksdb.version}</version>
                 </dependency>
             </dependencies>
         </profile>
@@ -300,6 +305,7 @@
                 <configuration>
                     <systemPropertyVariables>
                         <activeProfile>${project.activeProfiles[0].id}</activeProfile>
+                        <rocksdbVersion>${rocksdb.version}</rocksdbVersion>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>

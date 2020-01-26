@@ -31,11 +31,12 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.rocksdb.RocksDB;
 
+import java.io.IOException;
+import java.net.URL;
 import java.rmi.RemoteException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.Assert.*;
@@ -51,13 +52,17 @@ public class RocksDBImplTest {
     private IRocksDB instance;
 
     @Before
-    public void setup() throws RemoteException {
+    public void setup() throws IOException {
         instance = new RocksDBImpl();
 
-        String optionsFileSuffix = System.getProperty("activeProfile", "rocksdb");
-        instance.open(tmpFolder.getRoot().getAbsolutePath(),
-                Objects.requireNonNull(getClass().getClassLoader()
-                        .getResource("OPTIONS." + optionsFileSuffix)).getFile());
+        String activeProfile = System.getProperty("activeProfile", "rocksdb");
+        String rocksdbVersion = System.getProperty("rocksdbVersion");
+        String optionsFileName = "OPTIONS." + activeProfile + "-v" + rocksdbVersion;
+        URL optionsFileURL = getClass().getClassLoader().getResource(optionsFileName);
+        if (optionsFileURL == null) {
+            throw new IOException("Cannot find OPTIONS file: " + optionsFileName);
+        }
+        instance.open(tmpFolder.getRoot().getAbsolutePath(), optionsFileURL.getFile());
     }
 
     @After

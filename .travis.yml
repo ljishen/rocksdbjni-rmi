@@ -1,0 +1,29 @@
+language: java
+
+os: linux
+
+jdk:
+  - openjdk8
+  - openjdk11
+  - oraclejdk11
+
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - g++-7
+
+env:
+  - PROFILE=rocksdb ROCKSDB_VERSION=6.5.3
+  - PROFILE=rocksdb ROCKSDB_VERSION=6.1.2
+  - PROFILE=trocksdb ROCKSDB_VERSION=6.1.2.1
+
+before_install:
+  - eval "CC=gcc-7 && CXX=g++-7"
+
+install:
+  - mvn clean package -P$PROFILE -Drocksdb.version=$ROCKSDB_VERSION
+
+script:
+  - timeout --preserve-status 5 java -jar target/rocksdbjni-rmi-*.jar 1099 localhost

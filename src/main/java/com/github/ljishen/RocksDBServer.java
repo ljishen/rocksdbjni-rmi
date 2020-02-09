@@ -28,6 +28,8 @@ import com.google.common.net.InetAddresses;
 import com.google.common.net.InternetDomainName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.misc.Signal;
+import sun.misc.SignalHandler;
 
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -85,6 +87,17 @@ public class RocksDBServer {
             Registry registry = LocateRegistry.createRegistry(registryPort);
             String name = "RocksDB-" + registryPort;
             registry.rebind(name, stub);
+
+            final String[] exitSignals = {"INT", "TERM"};
+            for (String es : exitSignals) {
+                Signal.handle(new Signal(es), new SignalHandler() {
+                    @Override
+                    public void handle(Signal sig) {
+                        LOGGER.warn("Received SIG" + sig.getName() + " indicating exit request");
+                        System.exit(0);
+                    }
+                });
+            }
 
             // Register a shutdown hook to clean up resources before exit.
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {

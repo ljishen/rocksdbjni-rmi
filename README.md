@@ -1,4 +1,4 @@
-# RMI Server for RocksDB
+# RMI Server for RocksDB [![Build Status](https://travis-ci.com/ljishen/rocksdbjni-rmi.svg?branch=master)](https://travis-ci.com/ljishen/rocksdbjni-rmi) [![GitHub license](https://img.shields.io/github/license/ljishen/rocksdbjni-rmi)](https://github.com/ljishen/rocksdbjni-rmi/blob/master/LICENSE)
 
 ## Installation
 

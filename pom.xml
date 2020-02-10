@@ -310,6 +310,19 @@
                 </configuration>
             </plugin>
 
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.6.0</version>
+                <configuration>
+                    <executable>python3</executable>
+                    <arguments>
+                        <argument>hook/update_readme_versions.py</argument>
+                        <argument>${project.version}</argument>
+                    </arguments>
+                </configuration>
+            </plugin>
+
             <!-- Automate the changes to the Maven POM files, sanity checks,
             the SCM operations required and the actual deployment execution. -->
             <plugin>
@@ -318,6 +331,8 @@
                 <version>2.5.3</version>
                 <configuration>
                     <autoVersionSubmodules>true</autoVersionSubmodules>
+                    <preparationGoals>clean verify exec:exec</preparationGoals>
+                    <completionGoals>exec:exec</completionGoals>
                     <useReleaseProfile>false</useReleaseProfile>
                     <releaseProfiles>rocksdb,release</releaseProfiles>
                     <pushChanges>false</pushChanges>

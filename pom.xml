@@ -319,7 +319,7 @@
                 <configuration>
                     <autoVersionSubmodules>true</autoVersionSubmodules>
                     <useReleaseProfile>false</useReleaseProfile>
-                    <releaseProfiles>release</releaseProfiles>
+                    <releaseProfiles>rocksdb,release</releaseProfiles>
                     <pushChanges>false</pushChanges>
                     <localCheckout>true</localCheckout>
                     <goals>deploy</goals>

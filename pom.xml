@@ -71,7 +71,7 @@
         <profile>
             <id>trocksdb</id>
             <properties>
-                <rocksdb.version>6.1.2.1</rocksdb.version>
+                <rocksdb.version>6.4.6</rocksdb.version>
             </properties>
             <dependencies>
                 <dependency>

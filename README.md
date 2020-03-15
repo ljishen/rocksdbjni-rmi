@@ -88,7 +88,7 @@ Here are the steps to deploy and release a new version of "rocksdbjni-rmi" to [S
 
       ```bash
       cd ../../
-      git reset --hard HEAD^^
+      git reset --hard HEAD^^^
       git tag -d $(git tag -l --sort=-version:refname "rocksdbjni-rmi*" | head -1)
       ```
 

@@ -15,7 +15,7 @@ addons:
       - g++-7
 
 env:
-  - PROFILE=rocksdb ROCKSDB_VERSION=6.6.4
+  - PROFILE=rocksdb ROCKSDB_VERSION=6.7.3
   - PROFILE=rocksdb ROCKSDB_VERSION=6.1.2
   - PROFILE=trocksdb ROCKSDB_VERSION=6.1.2.1
 

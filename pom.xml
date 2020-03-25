@@ -57,7 +57,7 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
-                <rocksdb.version>6.6.4</rocksdb.version>
+                <rocksdb.version>6.7.3</rocksdb.version>
             </properties>
             <dependencies>
                 <dependency>
